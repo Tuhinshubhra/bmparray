@@ -171,3 +171,22 @@ document.addEventListener('mouseup', (event) => {
 	mousey = undefined;
 	clicked = false;
 });
+
+canvas.addEventListener('touchstart', (event) => {
+	mousex = event.touches[0].clientX - canvas.getBoundingClientRect().x;
+	mousey = event.touches[0].clientY - canvas.getBoundingClientRect().y;
+	clicked = true;
+}, { passive: true});
+
+canvas.addEventListener('touchmove', (event) => {
+	if (clicked){
+		mousex = event.touches[0].clientX - canvas.getBoundingClientRect().x;
+		mousey = event.touches[0].clientY - canvas.getBoundingClientRect().y;
+	}
+}, { passive: true});
+
+document.addEventListener('touchend', (event) => {
+	mousex = undefined;
+	mousey = undefined;
+	clicked = false;
+}, { passive: true});
