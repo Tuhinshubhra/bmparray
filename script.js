@@ -14,6 +14,7 @@ var selector_div = document.getElementById('selector');
 var pills = "";
 var clicked = false;
 var currentType = 1;
+var drawBorder = true;
 
 
 function c_cell(x, y, type, width, colors){
@@ -23,11 +24,11 @@ function c_cell(x, y, type, width, colors){
 	this.width = width;
 	this.colors = colors;
 
-	this.m_draw = (context) => {
+	this.m_draw = (context, drawBorder) => {
 		context.fillStyle = this.colors[this.type];
 		context.strokeStyle = "black";
 		context.fillRect(this.x, this.y, this.width, this.width);
-		context.strokeRect(this.x, this.y, this.width, this.width);
+		(drawBorder) ? context.strokeRect(this.x, this.y, this.width, this.width) : null;
 	}
 }
 
@@ -118,9 +119,10 @@ function updateCurrentType(type){
 
 function draw(){
 	if (cells.length != 0 && canvas_div.style.visibility == 'visible'){
+		context.strokeStyle = "black";
 		context.strokeRect(0, 0, canvas.width, canvas.height)
 		for (let c in cells){
-			cells[c].m_draw(context);
+			cells[c].m_draw(context, drawBorder);
 		}
 		if (mousex && mousey){
 		for (let c in cells){
@@ -190,3 +192,7 @@ document.addEventListener('touchend', (event) => {
 	mousey = undefined;
 	clicked = false;
 }, { passive: true});
+
+document.addEventListener('keydown', (event) => {
+	if (event.key.toLowerCase() == 'b') drawBorder = !drawBorder
+})
