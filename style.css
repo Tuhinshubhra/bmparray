@@ -1,0 +1,68 @@
+body{
+	text-align: center;
+	font-family: 'Comfortaa', cursive;
+}
+.maindiv{
+	padding: 50px 0px;
+	box-shadow: 0px 0px 14px 1px #45434347;
+	width: 80%;
+	margin: 0;
+	left: 10%;
+	position: absolute;
+	border-radius: 5px;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+	text-align: center;
+}
+#gridsize{
+	border: solid 1px black;
+	padding: 10px;
+	border-radius: 5px;
+}
+.button{
+	border: solid 1px black;
+	padding: 10px 30px;
+	border-radius: 5px;
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	font-weight: bold;
+	cursor: pointer;
+	background: transparent;
+}
+.button:hover{
+	background: black;
+	color: white;
+}
+textarea{
+	width:90%;
+	height: 30%;
+	margin: 5%;
+	border: solid 1px black;
+	border-radius: 5px;
+}
+canvas{
+	margin-bottom: 5px;
+}
+.pill {
+	display: inline-block;
+	margin: 5px 3px;
+	border-radius: 5px;
+	padding: 15px;
+	cursor: pointer;
+	box-shadow: 0px 0px 1px 1px #6f66664a;
+}
+#pillholder{
+	margin: 5px;
+}
+.current{
+	border-width: 5px !important;
+}
+.primary{
+	border: solid 1px #0000ff;
+	color: #0000ff;
+}
+.primary:hover{
+	background: #0000ff;
+	color: #fff;
+}
