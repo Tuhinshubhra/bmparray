@@ -141,7 +141,7 @@ function draw(){
 function generateArray(){
 	let arraytxt = [];
 	let colorarray = [];
-	for (let c in cells) arraytxt.push(cells[c].type);
+	for (let c in cells) arraytxt.push(((parseInt(c)+1) % rowNums == 1 && c != 0) ? '\n ' + cells[c].type : cells[c].type);
 	for (let t in types) colorarray.push(`"${types[t][1]}"`);
 	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${rowNums}x${rowNums}<br>Cell Dimensions: ${rowsize} px`
 
