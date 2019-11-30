@@ -17,7 +17,7 @@ body{
 	transform: translateY(-50%);
 	text-align: center;
 }
-#gridsize{
+.inpnums{
 	border: solid 1px black;
 	padding: 10px;
 	border-radius: 5px;

@@ -1,7 +1,7 @@
 var canvas = document.getElementById('myCanvas');
 var context = canvas.getContext('2d');
-var rowNums = undefined;
-var rowsize = undefined;
+var columnsNums = undefined;
+var cellSize = undefined;
 var mousex = undefined;
 var mousey = undefined;
 var cells = [];
@@ -71,27 +71,34 @@ function copyArray(){
 }
 
 function createGraph(ret = false){
-	rowNums = parseInt(document.getElementById('gridsize').value) 
-	if (rowNums && !isNaN(rowNums)){
+	columnsNums = parseInt(document.getElementById('gridsize').value)
+    rowNums     = parseInt(document.getElementById('rowsnum').value);
+	if (rowNums && columnsNums && !isNaN(columnsNums) && !isNaN(rowNums)){
 		// create graphs
 		if (!ret) {
-			rowsize = 600/rowNums;
-			cells = new Array(rowNums*rowNums);
+			cellSize = parseInt((rowNums > columnsNums) ? 600/rowNums : 600/columnsNums);
+            cellSize = (cellSize > 20) ? cellSize : 20;
+            
+            // set size of canvas based on the size
+            canvas.height = cellSize * rowNums;
+            canvas.width = cellSize * columnsNums;
+            
+			cells = new Array(rowNums*columnsNums);
 			let l_row = 1;
 			let l_colors = [];
 			for (let t in types) l_colors.push(types[t][1]);
 			for (var n=0; n<cells.length; n++){
-				if (n+1 > l_row*rowNums){
+				if (n+1 > l_row*columnsNums){
 					l_row++
 				}
 
-				var l_column = ((n+1) - ((l_row-1)*rowNums)) // Column of the cell
-
+				var l_column = ((n+1) - ((l_row-1)*columnsNums)) // Column of the cell
+                console.log(`n = ${n} c = ${l_column} r= ${l_row}`);
 				cells[n] = new c_cell(
-					((l_column-1) * rowsize), 
-					(rowsize * (l_row-1)),
+					((l_column-1) * cellSize), 
+					(cellSize * (l_row-1)),
 					0,
-					rowsize,
+					cellSize,
 					l_colors
 				)
 			}
@@ -115,6 +122,44 @@ function updateCurrentType(type){
 	document.getElementById('p'+currentType).classList.remove('current');
 	currentType = type;
 	document.getElementById('p'+currentType).classList.add('current');
+}
+
+function importArray(){
+	let arraytxt = prompt('Enter Bitmap Array');
+	let colortxt = prompt('Enter Color Array');
+
+	if (arraytxt != "" && colortxt != ""){
+		arraytxt = arraytxt.replace("[", "").replace("]", "").split(',');
+		colortxt = colortxt.replace("[", "").replace("]", "").split(',');
+		columnsNums = Math.sqrt(arraytxt.length);
+		
+		// create types from color array
+		types = [];
+		for (c in colortxt){
+			types.push([c, colortxt[c]])
+		}
+
+		// create cells from bmparray
+		cells = new Array(columnsNums*columnsNums);
+		let l_row = 1;
+		for (var n=0; n<cells.length; n++){
+			if (n+1 > l_row*columnsNums){
+				l_row++
+			}
+
+			var l_column = ((n+1) - ((l_row-1)*columnsNums)) // Column of the cell
+
+			cells[n] = new c_cell(
+				((l_column-1) * cellSize), 
+				(cellSize * (l_row-1)),
+				0,
+				cellSize,
+				colortxt
+			)
+		}
+	} else {
+		alert('Empty bitmap array or empty color array');
+	}
 }
 
 function draw(){
@@ -141,9 +186,9 @@ function draw(){
 function generateArray(){
 	let arraytxt = [];
 	let colorarray = [];
-	for (let c in cells) arraytxt.push(((parseInt(c)+1) % rowNums == 1 && c != 0) ? '\n ' + cells[c].type : cells[c].type);
+	for (let c in cells) arraytxt.push(((parseInt(c)+1) % columnsNums == 1 && c != 0) ? '\n ' + cells[c].type : cells[c].type);
 	for (let t in types) colorarray.push(`"${types[t][1]}"`);
-	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${rowNums}x${rowNums}<br>Cell Dimensions: ${rowsize} px`
+	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${columnsNums}x${columnsNums}<br>Cell Dimensions: ${cellSize} px`
 
 	document.getElementById('arraytext').value = "[" + arraytxt + "]";
 	document.getElementById('colorArray').innerHTML = colorarray;

@@ -9,12 +9,14 @@
 		<div id="configure" class="maindiv">
 			<h1>Bitmap Array Generator</h1>
 			<br>
-			<h3>Specify the number of columns</h3>
-			<input type="number" id="gridsize" value="10">
+			<h3>Specify the number of columns and rows</h3>
+			<input type="number" id="gridsize" value="10" class="inpnums">
+			<input type="number" id="rowsnum" value="10" class="inpnums">
 			<br>
 			<h4>Cell Types:</h4>
 			<div id="pillholder"></div>
 			<button onclick="createGraph()" class="button primary">Generate Array Grid</button>
+			<button onclick="importArray()" class="button primary">Import Array Grid</button>
 			<button onclick="addType()" class="button">Add another type</button>
 		</div>
 		<div id="canvas" style="visibility: hidden" class="maindiv" >
