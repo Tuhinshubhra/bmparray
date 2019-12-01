@@ -16,9 +16,28 @@
 			<h4>Cell Types:</h4>
 			<div id="pillholder"></div>
 			<button onclick="createGraph()" class="button primary">Generate Array Grid</button>
-			<button onclick="importArray()" class="button primary">Import Array Grid</button>
+			<button onclick="showImportScreen()" class="button primary">Import Array Grid</button>
 			<button onclick="addType()" class="button">Add another type</button>
 		</div>
+		
+		<div id="import_settings" class="maindiv" style="visibility: hidden">
+			<h1>Bitmap Array Importer</h1>
+			<br>
+			<h3>Specify the number of columns and rows</h3>
+			<input type="number" id="gridsize2" value="10" class="inpnums">
+			<input type="number" id="rowsnum2" value="10" class="inpnums">
+			<br>
+			<h3>Input the bitmap array</h3>
+			<textarea id="import_bmparray_txt"></textarea>
+			<br>
+			<h3>Input the Color Array</h3>
+			<textarea id="import_colorarray_txt"></textarea>
+			<br>
+			<br>
+			<button onclick="importArray()" class="button primary">Import</button>
+			<button onclick="changeArraySize()" class="button">Go Back</button>
+		</div>
+		
 		<div id="canvas" style="visibility: hidden" class="maindiv" >
 			<h3>Click and drag to draw || select color from below || press B to toggle cell borders</h3>
 			<center>

@@ -11,6 +11,7 @@ var text_div = document.getElementById('copytext');
 var conf_div = document.getElementById('configure');
 var pills_div = document.getElementById('pillholder');
 var selector_div = document.getElementById('selector');
+var import_div = document.getElementById('import_settings');
 var pills = "";
 var clicked = false;
 var currentType = 1;
@@ -40,6 +41,14 @@ function clearSelections(){
 	}
 }
 
+function showImportScreen(){
+	conf_div.style.visibility = 'hidden';
+	text_div.style.visibility = 'hidden';
+	canvas_div.style.visibility = 'hidden';
+	import_div.style.visibility = 'visible';
+}
+
+
 function addType(){
 	let newType = prompt('Enter a valid color name or hex code');
 	if (newType == "") {
@@ -60,6 +69,7 @@ function changeArraySize(){
 	conf_div.style.visibility = 'visible';
 	text_div.style.visibility = 'hidden';
 	canvas_div.style.visibility = 'hidden';
+	import_div.style.visibility = 'hidden';
 }
 
 function copyArray(){
@@ -112,6 +122,7 @@ function createGraph(ret = false){
 		conf_div.style.visibility = 'hidden';
 		text_div.style.visibility = 'hidden';
 		canvas_div.style.visibility = 'visible';
+		import_div.style.visibility = 'hidden';
 		document.getElementById('p1').classList.add('current');
 	} else {
 		alert('Invalid column size');
@@ -125,38 +136,59 @@ function updateCurrentType(type){
 }
 
 function importArray(){
-	let arraytxt = prompt('Enter Bitmap Array');
-	let colortxt = prompt('Enter Color Array');
+	let arraytxt = document.getElementById('import_bmparray_txt').value;
+	let colortxt = document.getElementById('import_colorarray_txt').value;
 
 	if (arraytxt != "" && colortxt != ""){
 		arraytxt = arraytxt.replace("[", "").replace("]", "").split(',');
 		colortxt = colortxt.replace("[", "").replace("]", "").split(',');
-		columnsNums = Math.sqrt(arraytxt.length);
+		columnsNums = document.getElementById('gridsize2').value;
+		rowNums = document.getElementById('rowsnum2').value;
 		
 		// create types from color array
 		types = [];
 		for (c in colortxt){
-			types.push([c, colortxt[c]])
+			types.push([c, colortxt[c].replace('"', "").replace('"', "")])
 		}
 
 		// create cells from bmparray
-		cells = new Array(columnsNums*columnsNums);
+		cellSize = parseInt((rowNums > columnsNums) ? 600/rowNums : 600/columnsNums);
+		cellSize = (cellSize > 20) ? cellSize : 20;
+
+		// set size of canvas based on the size
+		canvas.height = cellSize * rowNums;
+		canvas.width = cellSize * columnsNums;
+		let l_colors = [];
+		cells = new Array(rowNums*columnsNums);
+		for (let t in types) l_colors.push(types[t][1]);
 		let l_row = 1;
+		for (let t in types) l_colors.push(types[t][1]);
 		for (var n=0; n<cells.length; n++){
 			if (n+1 > l_row*columnsNums){
 				l_row++
 			}
 
 			var l_column = ((n+1) - ((l_row-1)*columnsNums)) // Column of the cell
-
 			cells[n] = new c_cell(
 				((l_column-1) * cellSize), 
 				(cellSize * (l_row-1)),
-				0,
+				arraytxt[n],
 				cellSize,
-				colortxt
+				l_colors
 			)
 		}
+		
+		// create type selectors
+		let l_selectors = "";
+		for (let t in types){
+			l_selectors += `<div id="p${types[t][0]}" class="pill" onclick="updateCurrentType(${types[t][0]})" style="color:black; border:solid 1px ${types[t][1]}">${types[t][0]}</div>`
+		}
+		selector_div.innerHTML = l_selectors;
+		conf_div.style.visibility = 'hidden';
+		text_div.style.visibility = 'hidden';
+		canvas_div.style.visibility = 'visible';
+		import_div.style.visibility = 'hidden';
+		document.getElementById('p1').classList.add('current');
 	} else {
 		alert('Empty bitmap array or empty color array');
 	}
@@ -195,6 +227,7 @@ function generateArray(){
 	canvas_div.style.visibility = 'hidden';
 	conf_div.style.visibility = 'hidden';
 	text_div.style.visibility = 'visible';
+	import_div.style.visibility = 'hidden';
 }
 
 changeArraySize()

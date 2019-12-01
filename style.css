@@ -37,7 +37,7 @@ body{
 	background: black;
 	color: white;
 }
-textarea{
+#arraytext{
 	width:90%;
 	height: 30%;
 	margin: 5%;
@@ -77,4 +77,9 @@ footer {
 	font-weight: bold;
 	margin-bottom: 5px;
 	letter-spacing: 5px;
+}
+
+textarea{
+	width: 80%;
+	border: solid 1px black;
 }
