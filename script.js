@@ -15,20 +15,42 @@ var import_div = document.getElementById('import_settings');
 var pills = "";
 var clicked = false;
 var currentType = 1;
+var cellNumberMode = false;
+var lastSelectedCell = undefined;
 var drawBorder = true;
+var checkpoints = [];
 
 
-function c_cell(x, y, type, width, colors){
-	this.x     = x;
-	this.y     = y;
-	this.type  = type;
-	this.width = width;
+function c_cell(x, y, type, width, colors, cellNumber){
+	this.x      = x;
+	this.y      = y;
+	this.type   = type;
+	this.width  = width;
 	this.colors = colors;
+	this.num    = cellNumber;
+	this.font   = ((this.width/4 > 10) ? this.width/4 : 10) + "px monospace";
+	this.checkpoint = false;
 
-	this.m_draw = (context, drawBorder) => {
+	this.m_draw = (context, drawBorder, writecellnumber) => {
 		context.fillStyle = this.colors[this.type];
 		context.strokeStyle = "black";
-		context.fillRect(this.x, this.y, this.width, this.width);
+		
+		if (writecellnumber){
+			//context.textAlign = "center"
+			context.font = this.font;
+			context.fillStyle = "black";
+			context.fillText(this.num, this.x+this.width/2, this.y+this.width/2);
+		} else {
+			context.fillRect(this.x, this.y, this.width, this.width);
+		}
+		if (this.checkpoint){
+			context.beginPath();
+			context.arc(this.x+this.width/2, this.y+this.width/2, this.width/4, 0, Math.PI * 2)
+			context.fillStyle = "black";
+			context.strokeStyle = "white";
+			context.fill();
+			context.stroke();
+		}
 		(drawBorder) ? context.strokeRect(this.x, this.y, this.width, this.width) : null;
 	}
 }
@@ -37,7 +59,9 @@ function clearSelections(){
 	if (cells.length > 0){
 		for (let c in cells){
 			cells[c].type = 0;
+			cells[c].checkpoint = false;
 		}
+		checkpoints = []
 	}
 }
 
@@ -103,13 +127,14 @@ function createGraph(ret = false){
 				}
 
 				var l_column = ((n+1) - ((l_row-1)*columnsNums)) // Column of the cell
-                console.log(`n = ${n} c = ${l_column} r= ${l_row}`);
+                // console.log(`n = ${n} c = ${l_column} r= ${l_row}`);
 				cells[n] = new c_cell(
 					((l_column-1) * cellSize), 
 					(cellSize * (l_row-1)),
 					0,
 					cellSize,
-					l_colors
+					l_colors,
+					n
 				)
 			}
 		}
@@ -174,7 +199,8 @@ function importArray(){
 				(cellSize * (l_row-1)),
 				arraytxt[n],
 				cellSize,
-				l_colors
+				l_colors,
+				n
 			)
 		}
 		
@@ -183,6 +209,12 @@ function importArray(){
 		for (let t in types){
 			l_selectors += `<div id="p${types[t][0]}" class="pill" onclick="updateCurrentType(${types[t][0]})" style="color:black; border:solid 1px ${types[t][1]}">${types[t][0]}</div>`
 		}
+		
+		// reset some vars
+		lastSelectedCell = undefined;
+		cellNumberMode = false;
+		drawBorder = false;	
+		
 		selector_div.innerHTML = l_selectors;
 		conf_div.style.visibility = 'hidden';
 		text_div.style.visibility = 'hidden';
@@ -197,14 +229,17 @@ function importArray(){
 function draw(){
 	if (cells.length != 0 && canvas_div.style.visibility == 'visible'){
 		context.strokeStyle = "black";
+		context.fillStyle = "white";
 		context.strokeRect(0, 0, canvas.width, canvas.height)
+		context.fillRect(0, 0, canvas.width, canvas.height)
 		for (let c in cells){
-			cells[c].m_draw(context, drawBorder);
+			cells[c].m_draw(context, drawBorder, cellNumberMode);
 		}
 		if (mousex && mousey){
 		for (let c in cells){
 			if ((mousex <= cells[c].x + cells[c].width && mousex >= cells[c].x) && (mousey <= cells[c].y + cells[c].width && mousey >= cells[c].y)){
 				//cells[c].type = (!cells[c].type) ? currentType : 0;
+				lastSelectedCell = c;
 				cells[c].type = currentType;
 				break;
 			}
@@ -220,7 +255,7 @@ function generateArray(){
 	let colorarray = [];
 	for (let c in cells) arraytxt.push(((parseInt(c)+1) % columnsNums == 1 && c != 0) ? '\n ' + cells[c].type : cells[c].type);
 	for (let t in types) colorarray.push(`"${types[t][1]}"`);
-	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${columnsNums}x${columnsNums}<br>Cell Dimensions: ${cellSize} px`
+	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${columnsNums}x${rowNums}<br>Cell Dimensions: ${cellSize} px<br>Checkpoints: [${checkpoints}]`
 
 	document.getElementById('arraytext').value = "[" + arraytxt + "]";
 	document.getElementById('colorArray').innerHTML = colorarray;
@@ -230,17 +265,30 @@ function generateArray(){
 	import_div.style.visibility = 'hidden';
 }
 
+function toggleCheckpoint(){
+	(lastSelectedCell) ? cells[lastSelectedCell].checkpoint = !cells[lastSelectedCell].checkpoint : null;
+	for (let c in checkpoints) {
+		if (checkpoints[c] == lastSelectedCell){
+			checkpoints.splice(c, 1); 
+			return;
+		}
+	}
+	checkpoints.push(lastSelectedCell)
+}
+
 changeArraySize()
 draw();
 
 canvas.addEventListener('mousedown', (event) => {
-	mousex = event.clientX - canvas.getBoundingClientRect().x;
-	mousey = event.clientY - canvas.getBoundingClientRect().y;
-	clicked = true;
+	if (!cellNumberMode){
+		mousex = event.clientX - canvas.getBoundingClientRect().x;
+		mousey = event.clientY - canvas.getBoundingClientRect().y;
+		clicked = true;
+	}
 });
 
 canvas.addEventListener('mousemove', (event) => {
-	if (clicked){
+	if (clicked && !cellNumberMode){
 		mousex = event.clientX - canvas.getBoundingClientRect().x;
 		mousey = event.clientY - canvas.getBoundingClientRect().y;
 	}
@@ -253,13 +301,16 @@ document.addEventListener('mouseup', (event) => {
 });
 
 canvas.addEventListener('touchstart', (event) => {
-	mousex = event.touches[0].clientX - canvas.getBoundingClientRect().x;
-	mousey = event.touches[0].clientY - canvas.getBoundingClientRect().y;
-	clicked = true;
+	if (!cellNumberMode){
+		mousex = event.touches[0].clientX - canvas.getBoundingClientRect().x;
+		mousey = event.touches[0].clientY - canvas.getBoundingClientRect().y;
+		clicked = true;
+	}
+	
 }, { passive: true});
 
 canvas.addEventListener('touchmove', (event) => {
-	if (clicked){
+	if (clicked && !cellNumberMode){
 		mousex = event.touches[0].clientX - canvas.getBoundingClientRect().x;
 		mousey = event.touches[0].clientY - canvas.getBoundingClientRect().y;
 	}
@@ -272,5 +323,17 @@ document.addEventListener('touchend', (event) => {
 }, { passive: true});
 
 document.addEventListener('keydown', (event) => {
-	if (event.key.toLowerCase() == 'b') drawBorder = !drawBorder
+	switch (event.key.toLowerCase()){
+		case 'b':
+			drawBorder = !drawBorder;
+			// console.log('Draw Border: ' + drawBorder)
+			break;
+		case 'n':
+			cellNumberMode = !cellNumberMode;
+			// console.log('Show Numbers: ' + cellNumberMode);
+			break;
+		case 'c':
+			toggleCheckpoint(); 
+			break;
+	}
 })
