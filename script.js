@@ -165,8 +165,8 @@ function importArray(){
 	let colortxt = document.getElementById('import_colorarray_txt').value;
 
 	if (arraytxt != "" && colortxt != ""){
-		arraytxt = arraytxt.replace("[", "").replace("]", "").split(',');
-		colortxt = colortxt.replace("[", "").replace("]", "").split(',');
+		arraytxt = arraytxt.replace("[", "").replace("]", "").replace(/\n/g, '').split(',');
+		colortxt = colortxt.replace("[", "").replace("]", "").replace(/\n/g, '').split(',');
 		columnsNums = document.getElementById('gridsize2').value;
 		rowNums = document.getElementById('rowsnum2').value;
 		
@@ -253,7 +253,7 @@ function draw(){
 function generateArray(){
 	let arraytxt = [];
 	let colorarray = [];
-	for (let c in cells) arraytxt.push(((parseInt(c)+1) % columnsNums == 1 && c != 0) ? '\n ' + cells[c].type : cells[c].type);
+	for (let c in cells) arraytxt.push(((parseInt(c)+1) % columnsNums == 1 && c != 0) ? '\n ' + cells[c].type.replace(/\n/g, '') : cells[c].type.replace(/\n/g, ''));
 	for (let t in types) colorarray.push(`"${types[t][1]}"`);
 	colorarray = `Color Array: [${colorarray}]<br>Grid Dimensions: ${columnsNums}x${rowNums}<br>Cell Dimensions: ${cellSize} px<br>Checkpoints: [${checkpoints}]`
 
